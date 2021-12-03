@@ -149,9 +149,9 @@ void serialize_row(Row *source, void *destination) {
 }
 
 void deserialize_row(void *source, Row *destination) {
-	memcpy(&(destination->id), (char*)source + ID_OFFSET, ID_SIZE);
-	memcpy(&(destination->username), (char*)source + USERNAME_OFFSET, USERNAME_SIZE);
-	memcpy(&(destination->email), (char*)source + EMAIL_OFFSET, EMAIL_SIZE);
+	memcpy(&(destination->id), source + ID_OFFSET, ID_SIZE);
+	memcpy(&(destination->username), source + USERNAME_OFFSET, USERNAME_SIZE);
+	memcpy(&(destination->email), source + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
 int main(int argc, char *argv[]) {
