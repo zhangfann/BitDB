@@ -41,15 +41,7 @@ void print_row(Row *row); // 打印行
 void serialize_row(Row *source, void *destination);
 void deserialize_row(void *source, Row *destination);
 
-// Pager 管理磁盘中的一个文件 *******************************
-typedef struct {
-  int file_descriptor;
-  uint32_t file_length;
-  void* pages[TABLE_MAX_PAGES];
-} Pager;
-Pager* pager_open(const char* filename);
-
-// Table 管理内存中的一个页 *************************
+// Table *************************
 const uint32_t PAGE_SIZE = 4096;
 #define TABLE_MAX_PAGES 100
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
@@ -57,13 +49,17 @@ const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
 typedef struct {
 	uint32_t num_rows;
-	Pager* pager;
+	void *pages[TABLE_MAX_PAGES];
 } Table;
-Table* db_open();
+Table* new_table();
 void free_table(Table *table);
 void* row_slot(Table *table, uint32_t row_num); // 根据row_num(行数)查找row
 
-
+typedef struct {
+  int file_descriptor;
+  uint32_t file_length;
+  void* pages[TABLE_MAX_PAGES];
+} Pager;
 
 // sql **************
 typedef enum {
