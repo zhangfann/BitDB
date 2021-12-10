@@ -1,10 +1,5 @@
 #ifndef DB_H
 #define DB_H
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
 
 // InputBuffer 输入输出 *******************************************
 // 作为一个小的包装来和 getline() 进行交互
@@ -47,7 +42,6 @@ void serialize_row(Row *source, void *destination);
 void deserialize_row(void *source, Row *destination);
 
 // Pager 管理磁盘中的一个文件 *******************************
-#define TABLE_MAX_PAGES 100
 typedef struct {
   int file_descriptor;
   uint32_t file_length;
@@ -59,6 +53,7 @@ void pager_flush(Pager* pager, uint32_t page_num, uint32_t size);
 
 // Table 管理内存中的一个页 *************************
 const uint32_t PAGE_SIZE = 4096;
+#define TABLE_MAX_PAGES 100
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
@@ -98,4 +93,5 @@ ExecuteResult execute_insert(Statement *statement, Table *table);
 ExecuteResult execute_select(Statement *statement, Table *table);
 ExecuteResult execute_statement(Statement *statement, Table *table);
 
+};
 #endif

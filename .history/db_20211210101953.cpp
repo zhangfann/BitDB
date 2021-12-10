@@ -40,7 +40,7 @@ void read_input(InputBuffer *input_buffer) {
 	input_buffer->buffer[bytes_read - 1] = 0;
 }
 // 元命令, 类似.exit *****************************************
-MetaCommandResult do_meta_command(InputBuffer *input_buffer, Table *table) {
+MetaCommandResult do_meta_command(InputBuffer *input_buffer, Table* table) {
 	if (strcmp(input_buffer->buffer, ".exit") == 0) {
 		db_close(table);
 		exit (EXIT_SUCCESS);
@@ -82,7 +82,7 @@ Pager* pager_open(const char *filename) {
 
 	off_t file_length = lseek(fd, 0, SEEK_END);
 
-	Pager *pager = (Pager*) malloc(sizeof(Pager));
+	Pager *pager = (Pager*)malloc(sizeof(Pager));
 	pager->file_descriptor = fd;
 	pager->file_length = file_length;
 
@@ -129,33 +129,32 @@ void* get_page(Pager *pager, uint32_t page_num) {
 	return pager->pages[page_num];
 }
 // 将pager的第page_num页中size大小, 刷入磁盘
-void pager_flush(Pager *pager, uint32_t page_num, uint32_t size) {
-	if (pager->pages[page_num] == NULL) {
-		printf("Tried to flush null page\n");
-		exit (EXIT_FAILURE);
-	}
+void pager_flush(Pager* pager, uint32_t page_num, uint32_t size) {
+  if (pager->pages[page_num] == NULL) {
+    printf("Tried to flush null page\n");
+    exit(EXIT_FAILURE);
+  }
 
-	off_t offset = lseek(pager->file_descriptor, page_num * PAGE_SIZE,
-			SEEK_SET);
+  off_t offset = lseek(pager->file_descriptor, page_num * PAGE_SIZE, SEEK_SET);
 
-	if (offset == -1) {
-		printf("Error seeking: %d\n", errno);
-		exit (EXIT_FAILURE);
-	}
+  if (offset == -1) {
+    printf("Error seeking: %d\n", errno);
+    exit(EXIT_FAILURE);
+  }
 
-	ssize_t bytes_written = write(pager->file_descriptor,
-			pager->pages[page_num], size);
+  ssize_t bytes_written =
+      write(pager->file_descriptor, pager->pages[page_num], size);
 
-	if (bytes_written == -1) {
-		printf("Error writing: %d\n", errno);
-		exit (EXIT_FAILURE);
-	}
+  if (bytes_written == -1) {
+    printf("Error writing: %d\n", errno);
+    exit(EXIT_FAILURE);
+  }
 }
 
 // Table *********************************************
 Table* db_open(const char *filename) {
 	Pager *pager = pager_open(filename);
-	uint32_t num_rows = pager->file_length/ ROW_SIZE;
+	uint32_t num_rows = pager->file_length;
 
 	Table *table = (Table*) malloc(sizeof(Table));
 	table->pager = pager;
@@ -206,8 +205,8 @@ void db_close(Table *table) {
 }
 
 void free_table(Table *table) {
-	for (int i = 0; table->pager->pages[i]; i++) {
-		free(table->pager->pages[i]);
+	for (int i = 0; table->pages[i]; i++) {
+		free(table->pages[i]);
 	}
 	free(table);
 }
@@ -304,14 +303,8 @@ void deserialize_row(void *source, Row *destination) {
 }
 
 int main(int argc, char *argv[]) {
-	if (argc < 2) {
-		printf("Must supply a database filename.\n");
-		exit (EXIT_FAILURE);
-	}
-
-	char *filename = argv[1];
-	Table *table = db_open(filename);
 	InputBuffer *input_buffer = new_input_buffer();
+	Table *table = db_open();
 
 	while (true) {
 		// 打印

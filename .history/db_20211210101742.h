@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <errno.h>
 
 // InputBuffer 输入输出 *******************************************
 // 作为一个小的包装来和 getline() 进行交互
