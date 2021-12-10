@@ -1,5 +1,10 @@
 #ifndef DB_H
 #define DB_H
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
 
 // InputBuffer 输入输出 *******************************************
 // 作为一个小的包装来和 getline() 进行交互
@@ -24,8 +29,8 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer); //执行元命令
 #define COLUMN_EMAIL_SIZE 255
 typedef struct {
 	uint32_t id;
-	char username[COLUMN_USERNAME_SIZE];
-	char email[COLUMN_EMAIL_SIZE];
+	char username[COLUMN_USERNAME_SIZE+1]; // +1:增加一个结束符
+	char email[COLUMN_EMAIL_SIZE+1];
 } Row;
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
 
@@ -41,34 +46,50 @@ void print_row(Row *row); // 打印行
 void serialize_row(Row *source, void *destination);
 void deserialize_row(void *source, Row *destination);
 
-// Table *************************
-const uint32_t PAGE_SIZE = 4096;
+// Pager 管理磁盘中的一个文件 *******************************
 #define TABLE_MAX_PAGES 100
+typedef struct {
+  int file_descriptor;
+  uint32_t file_length;
+  void* pages[TABLE_MAX_PAGES];
+} Pager;
+Pager* pager_open(const char* filename);
+void* get_page(Pager *pager, uint32_t page_num);
+void pager_flush(Pager* pager, uint32_t page_num, uint32_t size);
+
+// Table 管理内存中的一个页 *************************
+const uint32_t PAGE_SIZE = 4096;
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
 typedef struct {
 	uint32_t num_rows;
-	void *pages[TABLE_MAX_PAGES];
+	Pager* pager;
 } Table;
-Table* new_table();
+Table* db_open();
+void db_close(Table *table);
 void free_table(Table *table);
 void* row_slot(Table *table, uint32_t row_num); // 根据row_num(行数)查找row
 
-// sql **************
+
+// sql Statement **************
 typedef enum {
 	EXECUTE_SUCCESS, EXECUTE_TABLE_FULL
 } ExecuteResult;
 typedef enum {
-	PREPARE_SUCCESS, PREPARE_SYNTAX_ERROR, PREPARE_UNRECOGNIZED_STATEMENT
+	PREPARE_SUCCESS,
+	PREPARE_SYNTAX_ERROR, // 语法错误
+	PREPARE_UNRECOGNIZED_STATEMENT, // 未识别的语句
+	PREPARE_STRING_TOO_LONG, // 输入文本参数过长
+	PREPARE_NEGATIVE_ID, // id不能是负数
 } PrepareResult;
 
 typedef enum {
 	STATEMENT_INSERT, STATEMENT_SELECT
 } StatementType;
 typedef struct {
-	StatementType type;
-	Row row_to_insert; //only used by insert statement
+	StatementType type; // sql语句类型
+	Row row_to_insert; //待插入的行数据, only used by insert statement
 } Statement;
 
 PrepareResult prepare_statement(InputBuffer *input_buffer,
@@ -76,4 +97,5 @@ PrepareResult prepare_statement(InputBuffer *input_buffer,
 ExecuteResult execute_insert(Statement *statement, Table *table);
 ExecuteResult execute_select(Statement *statement, Table *table);
 ExecuteResult execute_statement(Statement *statement, Table *table);
+
 #endif
