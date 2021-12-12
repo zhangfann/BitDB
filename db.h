@@ -69,9 +69,17 @@ typedef struct {
 Table* db_open();
 void db_close(Table *table);
 void free_table(Table *table);
-void* row_slot(Table *table, uint32_t row_num); // 根据row_num(行数)查找row
 
-
+// Cursor ******************************
+typedef struct{
+	Table* table;
+	uint32_t row_num;
+	bool end_of_table; //我们想插入row的地方
+} Cursor;
+Cursor* table_start(Table* table);
+Cursor* table_end(Table* table);
+void* cursor_value(Cursor* cursor); // 获取cursor指向的row的地址
+void cursor_advance(Cursor* cursor);// cursor向后移动一行
 // sql Statement **************
 typedef enum {
 	EXECUTE_SUCCESS, EXECUTE_TABLE_FULL
