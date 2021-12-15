@@ -83,7 +83,6 @@ typedef struct {
 	bool end_of_table; //我们想插入row的地方
 } Cursor;
 Cursor* table_start(Table *table);
-Cursor* table_end(Table *table);
 void* cursor_value(Cursor *cursor); // 获取cursor指向的row的地址
 void cursor_advance(Cursor *cursor); // cursor向后移动一行
 // sql Statement **************
@@ -156,4 +155,5 @@ void* leaf_node_value(void *node, uint32_t cell_num);
 void initialize_leaf_node(void *node);
 
 void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value);
+Cursor* leaf_node_find(Table* table, uint32_t page_num, uint32_t key);
 #endif
