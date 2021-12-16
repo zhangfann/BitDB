@@ -87,7 +87,7 @@ void* cursor_value(Cursor *cursor); // 获取cursor指向的row的地址
 void cursor_advance(Cursor *cursor); // cursor向后移动一行
 // sql Statement **************
 typedef enum {
-	EXECUTE_SUCCESS, EXECUTE_TABLE_FULL
+	EXECUTE_SUCCESS, EXECUTE_DUPLICATE_KEY, EXECUTE_TABLE_FULL,
 } ExecuteResult;
 typedef enum {
 	PREPARE_SUCCESS, PREPARE_SYNTAX_ERROR, // 语法错误
@@ -144,6 +144,30 @@ const uint32_t LEAF_NODE_SPACE_FOR_CELLS = PAGE_SIZE - LEAF_NODE_HEADER_SIZE;
 const uint32_t LEAF_NODE_MAX_CELLS = LEAF_NODE_SPACE_FOR_CELLS
 		/ LEAF_NODE_CELL_SIZE;
 
+// 用于分割leaf node的参数
+const uint32_t LEAF_NODE_RIGHT_SPLIT_COUNT = (LEAF_NODE_MAX_CELLS + 1) / 2;
+const uint32_t LEAF_NODE_LEFT_SPLIT_COUNT = (LEAF_NODE_MAX_CELLS + 1)
+		- LEAF_NODE_RIGHT_SPLIT_COUNT;
+
+/*
+ * Internal Node Header Layout
+ */
+const uint32_t INTERNAL_NODE_NUM_KEYS_SIZE = sizeof(uint32_t);
+const uint32_t INTERNAL_NODE_NUM_KEYS_OFFSET = COMMON_NODE_HEADER_SIZE;
+const uint32_t INTERNAL_NODE_RIGHT_CHILD_SIZE = sizeof(uint32_t);
+const uint32_t INTERNAL_NODE_RIGHT_CHILD_OFFSET = INTERNAL_NODE_NUM_KEYS_OFFSET
+		+ INTERNAL_NODE_NUM_KEYS_SIZE;
+const uint32_t INTERNAL_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE
+		+ INTERNAL_NODE_NUM_KEYS_SIZE + INTERNAL_NODE_RIGHT_CHILD_SIZE;
+
+/*
+ * Internal Node Body Layout
+ */
+const uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
+const uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
+const uint32_t INTERNAL_NODE_CELL_SIZE = INTERNAL_NODE_CHILD_SIZE
+		+ INTERNAL_NODE_KEY_SIZE;
+
 uint32_t* leaf_node_num_cells(void *node);
 
 void* leaf_node_cell(void *node, uint32_t cell_num);
@@ -155,5 +179,7 @@ void* leaf_node_value(void *node, uint32_t cell_num);
 void initialize_leaf_node(void *node);
 
 void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value);
-Cursor* leaf_node_find(Table* table, uint32_t page_num, uint32_t key);
+Cursor* leaf_node_find(Table *table, uint32_t page_num, uint32_t key);
+NodeType get_node_type(void *node);
+void set_node_type(void *node, NodeType type);
 #endif
