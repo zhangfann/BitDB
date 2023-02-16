@@ -1,6 +1,6 @@
-# FanDB
-FanDB is currently a simple database,
-aimed to be used in IoT field to support store and analyse network data.
+# 如意搜索
+轻量级日志搜索系统
 
-211217
-支持简单的b树
+- 日志文件批量导入
+- 全文检索
+- 条件搜索
