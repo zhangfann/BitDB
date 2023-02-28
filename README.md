@@ -1,6 +1,7 @@
-# 如意搜索
-轻量级日志搜索系统
+# BitDB
+基于bitcask模型
 
-- 日志文件批量导入
-- 全文检索
-- 条件搜索
+# 使用
+sudo apt install -y make g++ libssl-dev libjsoncpp-dev libjson-c-dev libsqlite3-dev
+make -j
+sudo ./main
