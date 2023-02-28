@@ -1,3 +1,10 @@
 db
 .history/
 db.o
+Test/
+HarnessClient/
+*.o
+*.a
+Docs/
+*.log
+logs/

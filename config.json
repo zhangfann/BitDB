@@ -1,0 +1,14 @@
+{
+  "client_addr": "baidu.com",
+  "host_port": "8989",
+  "if_signup_platform": "false",
+  "ip": "1.2.3.4",
+  "local_ip": "172.17.217.131",
+  "platform_address": "http://127.0.0.1:8991",
+  "shell_path": "/mnt/c/Users/zhangfan/Documents/workspace/Jarvis_200802/210613-Storage/220309_FanDB/220613_FanDB/220526_search_fandb/Shell",
+  "tun_id": "40",
+  "uuid": "da50d6f53349af8160fefa1ea0d7cd44",
+  "db_path": "/mnt/c/Users/zhangfan/Documents/workspace/Jarvis_200802/210613-Storage/220309_FanDB/220613_FanDB/220526_FanDB/DB/zerotrust.db",
+  "log_path": "./logs/daily.txt",
+  "python3_path":"/opt/anaconda3/bin/python3"
+}

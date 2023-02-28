@@ -1,19 +1,48 @@
 CXX = g++ 
-PROG= db
+AFLAGS += -r
 
-CXXFLAGS += -g -std=c++11
-CPPFLAGS += -I. 
+# 编译选项
+#CXXFLAGS += -g -std=c++11 `mysql_config --cflags --libs`
+CXXFLAGS += -g -std=c++11 
 
-LDLIBS=
-LDFLAGS +=  $(LDLIBS)
+# 头文件
+CPPFLAGS += -I. -I/usr/include/jsoncpp \
+	-I/opt/homebrew/Cellar/jsoncpp/1.9.4_1/include \
+	-I./Include \
+	-I/opt/homebrew/Cellar/openssl@1.1/1.1.1o/include \
+	-I/opt/homebrew/opt/openssl/include
 
-all: $(PROG)
+# 库
+LDLIBS= -lpthread -ljsoncpp -lssl -lcrypto -l sqlite3
+# 库目录
+LDFLAGS +=  -L/opt/homebrew/Cellar/jsoncpp/1.9.4_1/lib/ \
+	-L/opt/homebrew/Cellar/openssl@1.1/1.1.1o/lib \
+	-L/opt/homebrew/opt/openssl/lib \
+	$(LDLIBS)
 
-SRCS= db.cpp
-# OBJS=$(subst .cc,.o, $(subst .cpp,.o, $(SRCS)))
-OBJS= db.o
-$(PROG): $(OBJS)
-	$(CXX) $^ $(LDFLAGS) -o $@
+TARGET_LIB= libtincserver.a
+LIB_OBJS= HttpServer.o \
+	Config.o \
+	ClientAuthList.o \
+	Logger.o \
+    SysInfo.o \
+    Bitcask.o \
+    HttpBitcaskService.o
+
+all: main $(TARGET_LIB)
+#all: main
+
+
+# 静态库
+$(TARGET_LIB): $(LIB_OBJS)
+	$(AR) $(AFLAGS) $@ $^ 
+
+main: main.o $(LIB_OBJS)
+	$(CXX) $^ $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ 
+.c.o:
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $^ -o $@
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $^ -o $@
 
 clean:
-	rm -f *.o kv
+	rm -f *.o main libtincserver.a
