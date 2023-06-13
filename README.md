@@ -1,4 +1,4 @@
-# BitDB
+# MetaServer
 基于bitcask模型
 
 # 使用
