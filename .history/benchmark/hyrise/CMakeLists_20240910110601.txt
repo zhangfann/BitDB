@@ -1,3 +1,0 @@
-add_executable(PrimitiveBench PrimitiveBench.cpp)
-
-target_link_libraries(PrimitiveBench benchmark::benchmark benchmark::benchmark_main )

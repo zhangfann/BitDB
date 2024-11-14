@@ -1,5 +1,0 @@
-enum Mode{
-    ReadWrite,
-    ReadOnly,
-    
-};

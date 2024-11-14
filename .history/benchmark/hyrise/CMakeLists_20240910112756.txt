@@ -1,3 +1,0 @@
-add_executable(table_scan_benchmark table_scan_benchmark.cpp)
-
-target_link_libraries(table_scan_benchmark benchmark::benchmark benchmark::benchmark_main lib_static pthread)

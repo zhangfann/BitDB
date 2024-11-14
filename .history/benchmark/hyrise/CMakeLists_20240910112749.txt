@@ -1,3 +1,0 @@
-add_executable(table_scan_benchmark PrimitiveBench.cpp)
-
-target_link_libraries(PrimitiveBench benchmark::benchmark benchmark::benchmark_main lib_static pthread)

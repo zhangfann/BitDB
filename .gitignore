@@ -10,3 +10,9 @@ zerotrust.o
 config.json
 
 build/
+.vs/
+.DS_Store
+*.swp
+.history/
+.project
+.vscode/
