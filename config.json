@@ -1,6 +1,6 @@
 {
   "client_addr": "baidu.com",
-  "host_port": "8989",
+  "host_port": "8990",
   "if_signup_platform": "false",
   "ip": "1.2.3.4",
   "local_ip": "172.17.217.131",

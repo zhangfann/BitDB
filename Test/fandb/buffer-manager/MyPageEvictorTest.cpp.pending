@@ -1,0 +1,58 @@
+#include "fandb/buffer-manager/PageEvictor.hpp"
+
+#include "leanstore/buffer-manager/BufferManager.hpp"
+
+#include "leanstore/leanstore-c/StoreOption.h"
+#include "leanstore/LeanStore.hpp"
+
+#include <gtest/gtest.h>
+
+#include <cstring>
+
+
+namespace fandb::storage::test
+{
+
+    class PageEvictorTest : public ::testing::Test
+    {
+    protected:
+        std::unique_ptr<leanstore::LeanStore> mStore;
+
+        PageEvictorTest() = default;
+        ~PageEvictorTest() = default;
+
+        void SetUp() override
+        {
+            auto *curTest = ::testing::UnitTest::GetInstance()->current_test_info();
+            auto curTestName = std::string(curTest->test_case_name()) + "_" + std::string(curTest->name());
+            const int pageSize = 4096;
+            const int pageHeaderSize = 512;
+            auto storeDirStr = "/tmp/leanstore/" + curTestName;
+            auto *option = CreateStoreOption(storeDirStr.c_str());
+            option->mCreateFromScratch = true;
+            option->mLogLevel = LogLevel::kDebug;
+            option->mWorkerThreads = 2;
+            option->mNumPartitions = 1;
+            option->mBufferPoolSize = 70 * (pageHeaderSize + pageSize);
+            option->mFreePct = 20;
+            option->mEnableBulkInsert = false;
+            option->mEnableEagerGc = false;
+            auto res = leanstore::LeanStore::Open(option);
+            ASSERT_TRUE(res);
+            mStore = std::move(res.value());
+        }
+    };
+
+    TEST_F(PageEvictorTest, pageEvictorBasic)
+    {
+        auto &pageEvictor = mStore->mBufferManager->mPageEvictors[0];
+        // 选取要写回的分区
+        pageEvictor->PickBufferFramesToCool(*pageEvictor->mPartitions[0]);
+        // 准备async buffer
+        // TODO
+
+        pageEvictor->PrepareAsyncWriteBuffer(*pageEvictor->mPartitions[0]);
+        // ??写回分区到buffer, 然后buffer再自己后台异步写回
+        pageEvictor->FlushAndRecycleBufferFrames(*pageEvictor->mPartitions[0]);
+    }
+}

@@ -1,0 +1,44 @@
+#pragma once
+
+#include <map>
+#include <memory>
+#include <string>
+
+#include "table.hpp"
+
+namespace opossum {
+
+// The StorageManager is a singleton that maintains all tables
+// by mapping table names to table instances.
+class StorageManager {
+ public:
+  static StorageManager &get();
+
+  bool table_exists(const std::string &name);
+
+  // adds a table to the storage manager
+  void add_table(const std::string &name, std::shared_ptr<Table> table);
+
+  // removes the table from the storage manger
+  void drop_table(const std::string &name);
+
+  // returns the table instance with the given name
+  std::shared_ptr<Table> get_table(const std::string &name) const;
+
+  // prints the table on the given stream
+  void print(std::ostream &out = std::cout) const;
+
+  // deletes the entire StorageManager and creates a new one, used especially in tests
+  static void reset();
+
+  StorageManager(StorageManager const &) = delete;
+  StorageManager &operator=(const StorageManager &) = delete;
+  StorageManager(StorageManager &&) = delete;
+
+ protected:
+  StorageManager() {}
+  StorageManager &operator=(StorageManager &&) = default;
+
+  std::map<std::string, std::shared_ptr<Table>> _tables;
+};
+}  // namespace opossum
